@@ -1,22 +1,95 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Mi mensaje</title>
-  <style>
-    body {
-      background-color: black;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-size: 40px;
-      font-family: Arial, sans-serif;
+<meta charset="UTF-8">
+<title>Mensaje</title>
+
+<style>
+  body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+
+  .mensaje {
+    position: absolute;
+    color: pink;
+    font-size: 40px;
+    animation: aparecer 1s ease, vibrar 0.2s infinite;
+    pointer-events: none;
+  }
+
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
     }
-  </style>
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes vibrar {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(2px, -2px); }
+    50% { transform: translate(-2px, 2px); }
+    75% { transform: translate(2px, 2px); }
+    100% { transform: translate(0, 0); }
+  }
+
+  .corazon {
+    position: absolute;
+    color: hotpink;
+    font-size: 20px;
+    animation: flotar 2s linear forwards;
+    pointer-events: none;
+  }
+
+  @keyframes flotar {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-100px);
+    }
+  }
+</style>
 </head>
+
 <body>
-  Te quiero Pau
+
+<script>
+  const FRASE = "TU FRASE AQUÍ 💗";
+
+  document.addEventListener("click", (e) => {
+    // Mensaje
+    const texto = document.createElement("div");
+    texto.className = "mensaje";
+    texto.innerText = FRASE;
+    texto.style.left = e.clientX + "px";
+    texto.style.top = e.clientY + "px";
+    document.body.appendChild(texto);
+
+    setTimeout(() => texto.remove(), 3000);
+
+    // Corazones
+    for (let i = 0; i < 10; i++) {
+      const corazon = document.createElement("div");
+      corazon.className = "corazon";
+      corazon.innerText = "💗";
+      corazon.style.left = (e.clientX + Math.random() * 50 - 25) + "px";
+      corazon.style.top = (e.clientY + Math.random() * 50 - 25) + "px";
+      document.body.appendChild(corazon);
+
+      setTimeout(() => corazon.remove(), 2000);
+    }
+  });
+</script>
+
 </body>
 </html>
