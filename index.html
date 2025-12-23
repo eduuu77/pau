@@ -2,79 +2,95 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mensaje</title>
+<title>Paula</title>
 
 <style>
   body {
     margin: 0;
     background: black;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     overflow: hidden;
+    height: 100vh;
     font-family: Arial, sans-serif;
   }
 
-  .texto {
+  #centro {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: pink;
+    font-size: 48px;
+    animation: vibrar 0.2s infinite;
+    pointer-events: none;
+  }
+
+  .frase {
     position: absolute;
     color: pink;
-    font-size: 42px;
-    animation: aparecer 1.5s ease, vibrar 0.15s infinite;
-    text-align: center;
+    font-size: 28px;
+    animation: aparecer 1.5s ease, flotar 3s linear forwards;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .particula {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: hotpink;
+    border-radius: 50%;
+    pointer-events: none;
   }
 
   @keyframes aparecer {
-    from {
-      opacity: 0;
-      transform: scale(0.6);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes flotar {
+    to { opacity: 0; transform: translateY(-80px); }
   }
 
   @keyframes vibrar {
-    0% { transform: translate(0,0); }
-    25% { transform: translate(1px,-1px); }
-    50% { transform: translate(-1px,1px); }
-    75% { transform: translate(1px,1px); }
-    100% { transform: translate(0,0); }
+    0% { transform: translate(-50%, -50%) translate(0,0); }
+    25% { transform: translate(-50%, -50%) translate(1px,-1px); }
+    50% { transform: translate(-50%, -50%) translate(-1px,1px); }
+    75% { transform: translate(-50%, -50%) translate(1px,1px); }
+    100% { transform: translate(-50%, -50%) translate(0,0); }
   }
 </style>
 </head>
 
 <body>
 
+<div id="centro">Paula 💖</div>
+
 <script>
   const FRASES = [
-    "Siempre estás aquí 💗",
-    "No te olvides de mí",
-    "Todo pasa",
-    "Aún pienso en ti",
-    "Nada fue en vano",
-    "Aquí sigo",
-    "No era un error",
-    "Te sentí"
+    "Te quiero",
+    "Te aprecio",
+    "Te pienso",
+    "Sos un tesoro",
+    "Me importas",
+    "Te adoro",
+    "Me haces feliz",
+    "Mereces lo mejor"
   ];
 
-  document.addEventListener("click", () => {
-    // borrar texto anterior
-    const viejo = document.querySelector(".texto");
-    if (viejo) viejo.remove();
+  document.addEventListener("click", (e) => {
+    // FRASE
+    const frase = document.createElement("div");
+    frase.className = "frase";
+    frase.innerText = FRASES[Math.floor(Math.random() * FRASES.length)];
+    frase.style.left = e.clientX + "px";
+    frase.style.top = e.clientY + "px";
+    document.body.appendChild(frase);
 
-    // elegir frase aleatoria
-    const frase = FRASES[Math.floor(Math.random() * FRASES.length)];
+    setTimeout(() => frase.remove(), 3000);
 
-    // crear texto
-    const texto = document.createElement("div");
-    texto.className = "texto";
-    texto.innerText = frase;
-
-    document.body.appendChild(texto);
-  });
-</script>
-
-</body>
-</html>
+    // FUEGOS ARTIFICIALES
+    for (let i = 0; i < 25; i++) {
+      const p = document.createElement("div");
+      p.className = "particula";
+      p.style.left = e.clientX + "px";
+      p.style.top = e.cl
