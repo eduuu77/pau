@@ -8,23 +8,26 @@
   body {
     margin: 0;
     background: black;
-    overflow: hidden;
     height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
     font-family: Arial, sans-serif;
   }
 
-  .mensaje {
+  .texto {
     position: absolute;
     color: pink;
-    font-size: 40px;
-    animation: aparecer 1s ease, vibrar 0.2s infinite;
-    pointer-events: none;
+    font-size: 42px;
+    animation: aparecer 1.5s ease, vibrar 0.15s infinite;
+    text-align: center;
   }
 
   @keyframes aparecer {
     from {
       opacity: 0;
-      transform: scale(0.5);
+      transform: scale(0.6);
     }
     to {
       opacity: 1;
@@ -33,30 +36,11 @@
   }
 
   @keyframes vibrar {
-    0% { transform: translate(0, 0); }
-    25% { transform: translate(2px, -2px); }
-    50% { transform: translate(-2px, 2px); }
-    75% { transform: translate(2px, 2px); }
-    100% { transform: translate(0, 0); }
-  }
-
-  .corazon {
-    position: absolute;
-    color: hotpink;
-    font-size: 20px;
-    animation: flotar 2s linear forwards;
-    pointer-events: none;
-  }
-
-  @keyframes flotar {
-    from {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateY(-100px);
-    }
+    0% { transform: translate(0,0); }
+    25% { transform: translate(1px,-1px); }
+    50% { transform: translate(-1px,1px); }
+    75% { transform: translate(1px,1px); }
+    100% { transform: translate(0,0); }
   }
 </style>
 </head>
@@ -64,30 +48,31 @@
 <body>
 
 <script>
-  const FRASE = "TE ADORO DEMASIADO PAU 💗";
+  const FRASES = [
+    "Siempre estás aquí 💗",
+    "No te olvides de mí",
+    "Todo pasa",
+    "Aún pienso en ti",
+    "Nada fue en vano",
+    "Aquí sigo",
+    "No era un error",
+    "Te sentí"
+  ];
 
-  document.addEventListener("click", (e) => {
-    // Mensaje
+  document.addEventListener("click", () => {
+    // borrar texto anterior
+    const viejo = document.querySelector(".texto");
+    if (viejo) viejo.remove();
+
+    // elegir frase aleatoria
+    const frase = FRASES[Math.floor(Math.random() * FRASES.length)];
+
+    // crear texto
     const texto = document.createElement("div");
-    texto.className = "mensaje";
-    texto.innerText = FRASE;
-    texto.style.left = e.clientX + "px";
-    texto.style.top = e.clientY + "px";
+    texto.className = "texto";
+    texto.innerText = frase;
+
     document.body.appendChild(texto);
-
-    setTimeout(() => texto.remove(), 3000);
-
-    // Corazones
-    for (let i = 0; i < 10; i++) {
-      const corazon = document.createElement("div");
-      corazon.className = "corazon";
-      corazon.innerText = "💗";
-      corazon.style.left = (e.clientX + Math.random() * 50 - 25) + "px";
-      corazon.style.top = (e.clientY + Math.random() * 50 - 25) + "px";
-      document.body.appendChild(corazon);
-
-      setTimeout(() => corazon.remove(), 2000);
-    }
   });
 </script>
 
