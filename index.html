@@ -1,30 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>Paula</title>
-
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: black;
-    overflow: hidden;
-    cursor: none;
-  }
-
-  canvas {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-</style>
-</head>
-
-<body>
-<canvas id="canvas"></canvas>
-
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -37,11 +10,24 @@ resize();
 window.addEventListener("resize", resize);
 
 // ===== TEXTO CENTRAL =====
-const texto = "Paula 💖";
+const textoCentral = "Paula 💖";
+
+// ===== FRASES =====
+const FRASES = [
+  "Te quiero",
+  "Te adoro",
+  "Te aprecio",
+  "Me importas",
+  "Sos especial",
+  "Te pienso",
+  "Me haces feliz"
+];
+
+const frasesActivas = [];
 
 // ===== PARTÍCULAS =====
 const particulas = [];
-const MAX = 180;
+const MAX = 200;
 
 class Particula {
   constructor(x, y) {
@@ -67,6 +53,34 @@ class Particula {
   }
 }
 
+// ===== FRASE CANVAS =====
+class Frase {
+  constructor(x, y, texto) {
+    this.x = x;
+    this.y = y;
+    this.texto = texto;
+    this.alpha = 1;
+    this.vy = 0.3;
+  }
+
+  update() {
+    this.y -= this.vy;
+    this.alpha -= 0.005;
+  }
+
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.alpha;
+    ctx.fillStyle = "pink";
+    ctx.font = "28px Arial";
+    ctx.textAlign = "center";
+    ctx.shadowColor = "hotpink";
+    ctx.shadowBlur = 15;
+    ctx.fillText(this.texto, this.x, this.y);
+    ctx.restore();
+  }
+}
+
 // ===== MOUSE =====
 let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
 
@@ -74,8 +88,19 @@ window.addEventListener("mousemove", e => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
 
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 2; i++) {
     particulas.push(new Particula(mouse.x, mouse.y));
+  }
+});
+
+// ===== CLICK =====
+window.addEventListener("click", e => {
+  const texto = FRASES[Math.floor(Math.random() * FRASES.length)];
+  frasesActivas.push(new Frase(e.clientX, e.clientY, texto));
+
+  // Explosión extra
+  for (let i = 0; i < 30; i++) {
+    particulas.push(new Particula(e.clientX, e.clientY));
   }
 });
 
@@ -84,33 +109,28 @@ function animate() {
   ctx.fillStyle = "rgba(0,0,0,0.2)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // TEXTO
+  // TEXTO CENTRAL
   ctx.save();
   ctx.fillStyle = "hotpink";
   ctx.font = "48px Arial";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.shadowColor = "hotpink";
-  ctx.shadowBlur = 20;
-  ctx.fillText(texto, canvas.width / 2, canvas.height / 2);
+  ctx.shadowBlur = 25;
+  ctx.fillText(textoCentral, canvas.width / 2, canvas.height / 2);
   ctx.restore();
+
+  // FRASES
+  for (let i = frasesActivas.length - 1; i >= 0; i--) {
+    const f = frasesActivas[i];
+    f.update();
+    f.draw();
+    if (f.alpha <= 0) frasesActivas.splice(i, 1);
+  }
 
   // PARTÍCULAS
   for (let i = particulas.length - 1; i >= 0; i--) {
     const p = particulas[i];
     p.update();
     p.draw();
-    if (p.life <= 0) particulas.splice(i, 1);
-  }
-
-  while (particulas.length > MAX) {
-    particulas.shift();
-  }
-
-  requestAnimationFrame(animate);
-}
-
-animate();
-</script>
-</body>
-</html>
+    if (p.life <= 0
