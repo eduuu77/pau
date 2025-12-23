@@ -5,19 +5,19 @@
 <title>Paula</title>
 
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: black;
-    overflow: hidden;
-    cursor: none;
-  }
-  canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: block;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: black;
+  overflow: hidden;
+  cursor: none;
+}
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: block;
+}
 </style>
 </head>
 
@@ -44,7 +44,8 @@
     "Me importas",
     "Sos especial",
     "Te pienso",
-    "Me haces feliz"
+    "Me haces feliz",
+    "Siempre contigo"
   ];
 
   let tiempo = 0;
@@ -53,13 +54,13 @@
 
   // ===== PARTÍCULA =====
   class Particula {
-    constructor(x, y, color = "hotpink") {
+    constructor(x, y, color = "hotpink", fuerza = 1) {
       this.x = x;
       this.y = y;
-      this.vx = (Math.random() - 0.5) * 3;
-      this.vy = (Math.random() - 0.5) * 3;
-      this.size = Math.random() * 2 + 1;
-      this.life = Math.random() * 80 + 60;
+      this.vx = (Math.random() - 0.5) * 2 * fuerza;
+      this.vy = (Math.random() - 0.5) * 2 * fuerza;
+      this.size = Math.random() * 2 + 0.5;
+      this.life = Math.random() * 100 + 80;
       this.color = color;
     }
     update() {
@@ -82,16 +83,13 @@
       this.y = y;
       this.texto = texto;
       this.alpha = 1;
-      this.timer = 0;
     }
     update() {
-      this.y -= 0.3;
+      this.y -= 0.4;
       this.alpha -= 0.01;
-      this.timer++;
       if (this.alpha <= 0) {
-        // Explosión
-        for (let i = 0; i < 30; i++) {
-          particulas.push(new Particula(this.x, this.y, "pink"));
+        for (let i = 0; i < 40; i++) {
+          particulas.push(new Particula(this.x, this.y, "pink", 2));
         }
         return false;
       }
@@ -110,7 +108,40 @@
     }
   }
 
-  // ===== MOUSE =====
+  // ===== TEXTO EN PARTÍCULAS =====
+  const textoCanvas = document.createElement("canvas");
+  const tctx = textoCanvas.getContext("2d");
+
+  function crearTextoParticulas() {
+    textoCanvas.width = 500;
+    textoCanvas.height = 150;
+    tctx.clearRect(0,0,500,150);
+    tctx.fillStyle = "white";
+    tctx.font = "80px Arial";
+    tctx.textAlign = "center";
+    tctx.textBaseline = "middle";
+    tctx.fillText(TEXTO, 250, 75);
+
+    const data = tctx.getImageData(0,0,500,150).data;
+    for (let y = 0; y < 150; y += 4) {
+      for (let x = 0; x < 500; x += 4) {
+        const i = (y * 500 + x) * 4;
+        if (data[i + 3] > 150) {
+          particulas.push(
+            new Particula(
+              canvas.width/2 - 250 + x,
+              canvas.height/2 - 75 + y,
+              "hotpink",
+              0.2
+            )
+          );
+        }
+      }
+    }
+  }
+  crearTextoParticulas();
+
+  // ===== EVENTOS =====
   addEventListener("mousemove", e => {
     for (let i = 0; i < 2; i++) {
       particulas.push(new Particula(e.clientX, e.clientY));
@@ -126,48 +157,35 @@
   function animate() {
     tiempo += 0.03;
 
-    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // ===== TEXTO LATIENDO =====
-    const escala = 1 + Math.sin(tiempo) * 0.05;
+    // Texto respirando
+    const escala = 1 + Math.sin(tiempo) * 0.04;
     ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.translate(canvas.width/2, canvas.height/2);
     ctx.scale(escala, escala);
-    ctx.fillStyle = "hotpink";
-    ctx.font = "48px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.shadowColor = "hotpink";
-    ctx.shadowBlur = 30;
-    ctx.fillText(TEXTO, 0, 0);
     ctx.restore();
 
-    // ===== FRASES =====
+    // Frases
     for (let i = frases.length - 1; i >= 0; i--) {
-      if (!frases[i].update()) {
-        frases.splice(i, 1);
-      } else {
-        frases[i].draw();
-      }
+      if (!frases[i].update()) frases.splice(i, 1);
+      else frases[i].draw();
     }
 
-    // ===== PARTÍCULAS =====
+    // Partículas
     for (let i = particulas.length - 1; i >= 0; i--) {
       particulas[i].update();
       particulas[i].draw();
       if (particulas[i].life <= 0) particulas.splice(i, 1);
     }
 
-    // ===== GLITCH SUAVE =====
-    if (Math.random() < 0.04) {
+    // Glitch
+    if (Math.random() < 0.035) {
       const y = Math.random() * canvas.height;
-      const h = Math.random() * 30 + 5;
-      ctx.drawImage(
-        canvas,
-        0, y, canvas.width, h,
-        Math.random() * 20 - 10, y, canvas.width, h
-      );
+      const h = Math.random() * 25 + 5;
+      ctx.drawImage(canvas, 0, y, canvas.width, h,
+        Math.random()*20-10, y, canvas.width, h);
     }
 
     requestAnimationFrame(animate);
