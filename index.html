@@ -1,136 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Paula</title>
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: block;
+  }
+</style>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+(() => {
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize", resize);
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
 
-// ===== TEXTO CENTRAL =====
-const textoCentral = "Paula 💖";
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
 
-// ===== FRASES =====
-const FRASES = [
-  "Te quiero",
-  "Te adoro",
-  "Te aprecio",
-  "Me importas",
-  "Sos especial",
-  "Te pienso",
-  "Me haces feliz"
-];
+  // ===== TEXTO CENTRAL =====
+  const textoCentral = "Paula 💖";
 
-const frasesActivas = [];
+  // ===== FRASES =====
+  const FRASES = [
+    "Te quiero",
+    "Te adoro",
+    "Te aprecio",
+    "Me importas",
+    "Sos especial",
+    "Te pienso",
+    "Me haces feliz"
+  ];
 
-// ===== PARTÍCULAS =====
-const particulas = [];
-const MAX = 200;
+  const frases = [];
+  const particulas = [];
+  const MAX_PARTICULAS = 220;
 
-class Particula {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.vx = (Math.random() - 0.5) * 1.5;
-    this.vy = (Math.random() - 0.5) * 1.5;
-    this.size = Math.random() * 2 + 1;
-    this.life = Math.random() * 200 + 100;
+  // ===== PARTÍCULA =====
+  class Particula {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.vx = (Math.random() - 0.5) * 2;
+      this.vy = (Math.random() - 0.5) * 2;
+      this.size = Math.random() * 2 + 1;
+      this.life = Math.random() * 120 + 80;
+    }
+
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.life--;
+    }
+
+    draw() {
+      ctx.fillStyle = "hotpink";
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }
 
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.life--;
+  // ===== FRASE =====
+  class Frase {
+    constructor(x, y, texto) {
+      this.x = x;
+      this.y = y;
+      this.texto = texto;
+      this.alpha = 1;
+      this.vy = 0.4;
+    }
+
+    update() {
+      this.y -= this.vy;
+      this.alpha -= 0.01;
+    }
+
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.fillStyle = "pink";
+      ctx.font = "28px Arial";
+      ctx.textAlign = "center";
+      ctx.shadowColor = "hotpink";
+      ctx.shadowBlur = 20;
+      ctx.fillText(this.texto, this.x, this.y);
+      ctx.restore();
+    }
   }
 
-  draw() {
-    ctx.fillStyle = "hotpink";
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
+  // ===== MOUSE =====
+  window.addEventListener("mousemove", e => {
+    for (let i = 0; i < 2; i++) {
+      particulas.push(new Particula(e.clientX, e.clientY));
+    }
+  });
 
-// ===== FRASE CANVAS =====
-class Frase {
-  constructor(x, y, texto) {
-    this.x = x;
-    this.y = y;
-    this.texto = texto;
-    this.alpha = 1;
-    this.vy = 0.3;
-  }
+  // ===== CLICK =====
+  window.addEventListener("click", e => {
+    const t = FRASES[Math.floor(Math.random() * FRASES.length)];
+    frases.push(new Frase(e.clientX, e.clientY, t));
 
-  update() {
-    this.y -= this.vy;
-    this.alpha -= 0.005;
-  }
+    for (let i = 0; i < 25; i++) {
+      particulas.push(new Particula(e.clientX, e.clientY));
+    }
+  });
 
-  draw() {
+  // ===== LOOP =====
+  function animate() {
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // TEXTO CENTRAL
     ctx.save();
-    ctx.globalAlpha = this.alpha;
-    ctx.fillStyle = "pink";
-    ctx.font = "28px Arial";
+    ctx.fillStyle = "hotpink";
+    ctx.font = "48px Arial";
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
     ctx.shadowColor = "hotpink";
-    ctx.shadowBlur = 15;
-    ctx.fillText(this.texto, this.x, this.y);
+    ctx.shadowBlur = 30;
+    ctx.fillText(textoCentral, canvas.width / 2, canvas.height / 2);
     ctx.restore();
-  }
-}
 
-// ===== MOUSE =====
-let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+    // FRASES
+    for (let i = frases.length - 1; i >= 0; i--) {
+      frases[i].update();
+      frases[i].draw();
+      if (frases[i].alpha <= 0) frases.splice(i, 1);
+    }
 
-window.addEventListener("mousemove", e => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
+    // PARTÍCULAS
+    for (let i = particulas.length - 1; i >= 0; i--) {
+      particulas[i].update();
+      particulas[i].draw();
+      if (particulas[i].life <= 0) particulas.splice(i, 1);
+    }
 
-  for (let i = 0; i < 2; i++) {
-    particulas.push(new Particula(mouse.x, mouse.y));
-  }
-});
+    while (particulas.length > MAX_PARTICULAS) {
+      particulas.shift();
+    }
 
-// ===== CLICK =====
-window.addEventListener("click", e => {
-  const texto = FRASES[Math.floor(Math.random() * FRASES.length)];
-  frasesActivas.push(new Frase(e.clientX, e.clientY, texto));
-
-  // Explosión extra
-  for (let i = 0; i < 30; i++) {
-    particulas.push(new Particula(e.clientX, e.clientY));
-  }
-});
-
-// ===== LOOP =====
-function animate() {
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // TEXTO CENTRAL
-  ctx.save();
-  ctx.fillStyle = "hotpink";
-  ctx.font = "48px Arial";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.shadowColor = "hotpink";
-  ctx.shadowBlur = 25;
-  ctx.fillText(textoCentral, canvas.width / 2, canvas.height / 2);
-  ctx.restore();
-
-  // FRASES
-  for (let i = frasesActivas.length - 1; i >= 0; i--) {
-    const f = frasesActivas[i];
-    f.update();
-    f.draw();
-    if (f.alpha <= 0) frasesActivas.splice(i, 1);
+    requestAnimationFrame(animate);
   }
 
-  // PARTÍCULAS
-  for (let i = particulas.length - 1; i >= 0; i--) {
-    const p = particulas[i];
-    p.update();
-    p.draw();
-    if (p.life <= 0
+  animate();
+
+})();
+</script>
+
+</body>
+</html>
